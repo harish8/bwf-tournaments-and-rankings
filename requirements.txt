@@ -1,5 +1,4 @@
 pandas
-io
 nbdev
 streamlit
 streamlit-jupyter
