@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = []
 
-# %% tournaments_eda.ipynb 2
+# %% tournaments_eda.ipynb 3
 # import the neccessary packages
 import streamlit as st
 
@@ -13,16 +13,18 @@ import pandas as pd
 import io
 
 
-# %% tournaments_eda.ipynb 4
+# %% tournaments_eda.ipynb 5
 st.title("BWF Tournaments")
 
-# %% tournaments_eda.ipynb 5
+# %% tournaments_eda.ipynb 6
 st.markdown(f" ## Fetch the data from csv file and store it in a variable.")
 
-# %% tournaments_eda.ipynb 6
+# %% tournaments_eda.ipynb 7
 tournaments_df = pd.read_csv('./data/tournaments.csv', index_col=0)
 
-# %% tournaments_eda.ipynb 7
+pd.set_option('display.max_colwidth', None)
+
+# %% tournaments_eda.ipynb 8
 # To display the output in your Streamlit app, pipe the output of df.info to a buffer instead of sys.stdout, 
 # get the buffer content, and display it with st.text like so:
 buffer = io.StringIO()
@@ -31,10 +33,10 @@ df_tournaments_info = buffer.getvalue()
 
 st.text(df_tournaments_info)
 
-# %% tournaments_eda.ipynb 8
+# %% tournaments_eda.ipynb 9
 st.write(tournaments_df.describe())
 
-# %% tournaments_eda.ipynb 9
+# %% tournaments_eda.ipynb 10
 st.markdown(
 """
 As we see the total count for each column other than type is 325. And the total count in Type is only 250. so need to figure out what types are missing and how to fill those or remove those if necessary. 
@@ -43,21 +45,54 @@ Aditionally from the original dataset there's no index column. let's start with 
 """
 )
 
-# %% tournaments_eda.ipynb 10
+# %% tournaments_eda.ipynb 11
 # add a new integer index column to the dataframe
 tournaments_df.reset_index(inplace=True)
 tournaments_df = tournaments_df.rename_axis('Index')
 
-# %% tournaments_eda.ipynb 11
-st.write(tournaments_df.head())
-
 # %% tournaments_eda.ipynb 12
+st.markdown(f" ### Let's see our dataframe now with a proper index and first 10 results to get a sense of how it's looking")
+
+st.dataframe(tournaments_df.head(10))
+
+# %% tournaments_eda.ipynb 13
 st.markdown(
 """
-Now we have added the proper integier index column let's focus on missing values in type.  
+Now we have added the proper integier index column let's focus on missing values in `type`.  
 """
 )
 
-# %% tournaments_eda.ipynb 13
+# %% tournaments_eda.ipynb 14
 # find if there's any missing values. 
-tournaments_df[tournaments_df.isna().any(axis=1)]
+tournaments_df_nan_values = tournaments_df[tournaments_df.isna().any(axis=1)]
+
+st.markdown(f" ### This following output is the list of values with NaN in the dataframe")
+st.dataframe(tournaments_df_nan_values.head())
+
+# %% tournaments_eda.ipynb 15
+st.markdown(f'''
+after carefully observing the tournament events on BWF tournament software website and learning the event types and tournament structure grading, 
+    the missing types are mostly `Grade 3 and Junior` tournaments. 
+    https://corporate.bwfbadminton.com/events/    
+'''
+)
+
+
+# %% tournaments_eda.ipynb 16
+# fill missing values with `Grade 3 and Junior`
+
+tournaments_df['type'].fillna('Grade 3 and Junior', inplace=True)
+
+# %% tournaments_eda.ipynb 17
+st.markdown(f" ### After filling the missing values in `type` with `Grade 3 and Juniour` lets recheck our dataframe info")
+
+buffer = io.StringIO()
+tournaments_df.info(buf=buffer)
+df_tournaments_info = buffer.getvalue()
+
+st.text(df_tournaments_info)
+
+# %% tournaments_eda.ipynb 18
+st.markdown('''
+There, now we have all the dataset with `no null` values. 
+''')
