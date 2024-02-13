@@ -84,15 +84,21 @@ after carefully observing the tournament events on BWF tournament software websi
 tournaments_df['type'].fillna('Grade 3 and Junior', inplace=True)
 
 # %% tournaments_eda.ipynb 17
-st.markdown(f" ### After filling the missing values in `type` with `Grade 3 and Juniour` lets recheck our dataframe info")
+st.markdown(f" ### After filling the missing values in `type` with `Grade 3 and Junior`, next let's convert the `start_date` and `end_date` to `datetime64[ns]` Dtype instead of object ")
 
+tournaments_df['start_date'] = pd.to_datetime(tournaments_df['start_date'])
+tournaments_df['end_date'] = pd.to_datetime(tournaments_df['end_date'])
+
+
+# %% tournaments_eda.ipynb 18
+st.markdown('''
+There, now we have all the dataset with `no null` values and the right Dtypes necessary to move further. 
+''')
+
+# %% tournaments_eda.ipynb 19
+st.markdown(f" lets recheck our dateframe info after the fixes we did to make sure its looking good to proceed")
 buffer = io.StringIO()
 tournaments_df.info(buf=buffer)
 df_tournaments_info = buffer.getvalue()
 
 st.text(df_tournaments_info)
-
-# %% tournaments_eda.ipynb 18
-st.markdown('''
-There, now we have all the dataset with `no null` values. 
-''')
