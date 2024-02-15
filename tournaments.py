@@ -10,6 +10,10 @@ import streamlit as st
 from streamlit_jupyter import StreamlitPatcher, tqdm
 
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 import io
 
 
@@ -84,7 +88,7 @@ after carefully observing the tournament events on BWF tournament software websi
 tournaments_df['type'].fillna('Grade 3 and Junior', inplace=True)
 
 # %% tournaments_eda.ipynb 17
-st.markdown(f" ### After filling the missing values in `type` with `Grade 3 and Junior`, next let's convert the `start_date` and `end_date` to `datetime64[ns]` Dtype instead of object ")
+st.markdown(f" ### Now we filled the missing values in `type` with `Grade 3 and Junior`, next let's convert the `start_date` and `end_date` to `datetime64[ns]` Dtype instead of object ")
 
 tournaments_df['start_date'] = pd.to_datetime(tournaments_df['start_date'])
 tournaments_df['end_date'] = pd.to_datetime(tournaments_df['end_date'])
@@ -102,3 +106,51 @@ tournaments_df.info(buf=buffer)
 df_tournaments_info = buffer.getvalue()
 
 st.text(df_tournaments_info)
+
+# %% tournaments_eda.ipynb 20
+st.markdown(f" ## Processing the variable Countries")
+
+# %% tournaments_eda.ipynb 21
+st.markdown(f" first lets fetch all the unique countries who hosted tournaments")
+
+st.write(tournaments_df['country'].unique())
+
+# %% tournaments_eda.ipynb 22
+st.markdown(f" Creating a bar chart illustrating the frequency of each country hosting a tournament in its home country.")
+
+# Get the unique counts of each country and store the dataframe in a new variable `all_countries`
+# The resulted all_countries will have two new columns called `country` and `count`
+all_countries = tournaments_df['country'].value_counts().reset_index()
+
+#TODO set these following custom color palette to the bars
+#colors = ['#40e0d0', '#20b2aa', '#fdaa48','#6890F0','#A890F0']
+
+# Create a bar plot with Seaborn
+fig, ax = plt.subplots(figsize =(18,7))
+sns.barplot(x=all_countries['country'], y=all_countries['count'], palette='Paired')
+
+# set title, xlabel and ylable
+ax.set_title("Counting the Hosts: Badminton Tournaments by Country", fontsize=15,weight='bold')
+plt.xlabel('Countries')
+plt.ylabel('Count')
+
+# Rotate x-axis labels vertically
+plt.xticks(rotation=90, ha='center')
+
+# Display count on top of each bar
+for p in ax.patches:
+    ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+
+sns.despine(right=True, top=True)
+
+st.pyplot(fig)
+plt.show()
+
+# %% tournaments_eda.ipynb 23
+st.markdown('''
+As we see `Malaysia` and `China` hosted 14 tournaments making them the leaders in terms of hosting.. 
+Following closely are Indonesia and France, each having hosted 11 tournaments each.
+
+we'll check the dates and frequency of these tournaments organized as we go further. 
+''')

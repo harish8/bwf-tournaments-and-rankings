@@ -2,3 +2,5 @@ pandas
 nbdev
 streamlit
 streamlit-jupyter
+matplotlib
+seaborn
