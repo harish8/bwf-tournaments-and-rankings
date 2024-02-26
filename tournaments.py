@@ -43,7 +43,7 @@ st.write(tournaments_df.describe())
 # %% tournaments_eda.ipynb 10
 st.markdown(
 """
-As we see the total count for each column other than type is 325. And the total count in Type is only 250. so need to figure out what types are missing and how to fill those or remove those if necessary. 
+As we see the total count for each column other than type is 330. And the total count in Type is only 254. so need to figure out what types are missing and how to fill those or remove those if necessary. 
 
 Aditionally from the original dataset there's no index column. let's start with adding index column to the dataframe. 
 """
@@ -90,9 +90,13 @@ tournaments_df['type'].fillna('Grade 3 and Junior', inplace=True)
 # %% tournaments_eda.ipynb 17
 st.markdown(f" ### Now we filled the missing values in `type` with `Grade 3 and Junior`, next let's convert the `start_date` and `end_date` to `datetime64[ns]` Dtype instead of object ")
 
-tournaments_df['start_date'] = pd.to_datetime(tournaments_df['start_date'])
-tournaments_df['end_date'] = pd.to_datetime(tournaments_df['end_date'])
+tournaments_df['start_date'] = pd.to_datetime(tournaments_df['start_date'], format='%m/%d/%Y')
+tournaments_df['end_date'] = pd.to_datetime(tournaments_df['end_date'], format='%m/%d/%Y')
 
+# create a new column called `duration` with the tournaments start date and end date. 
+tournaments_df['duration'] = (tournaments_df['end_date'] - tournaments_df['start_date']).dt.days
+
+tournaments_df.head()
 
 # %% tournaments_eda.ipynb 18
 st.markdown('''
@@ -113,7 +117,7 @@ st.markdown(f" ## Processing the variable Countries")
 # %% tournaments_eda.ipynb 21
 st.markdown(f" first lets fetch all the unique countries who hosted tournaments")
 
-st.write(tournaments_df['country'].unique())
+st.write(pd.Series(tournaments_df['country'].unique(), name = "Countries").to_frame())
 
 # %% tournaments_eda.ipynb 22
 st.markdown(f" Creating a bar chart illustrating the frequency of each country hosting a tournament in its home country.")
@@ -154,3 +158,51 @@ Following closely are Indonesia and France, each having hosted 11 tournaments ea
 
 we'll check the dates and frequency of these tournaments organized as we go further. 
 ''')
+
+# %% tournaments_eda.ipynb 24
+# tournaments_df['duration'] = (tournaments_df['end_date'] -  tournaments_df['start_date'])
+
+scheduled_tournaments_by_country = tournaments_df.groupby(['country', 'city', 'type']).agg({
+    'start_date' : lambda x : list(x),
+    'end_date' : lambda x : list(x),
+    'duration' : lambda x : list(x)
+}).reset_index()
+
+scheduled_tournaments_by_country = scheduled_tournaments_by_country.rename_axis('Index')
+st.dataframe(scheduled_tournaments_by_country.head(10))
+
+# %% tournaments_eda.ipynb 25
+st.markdown('''
+Let's check the frequency of each type of tournament happend from 2022 to early 2024 
+''')
+
+# %% tournaments_eda.ipynb 26
+type_counts = scheduled_tournaments_by_country['type'].value_counts()
+
+# using Seaborn to create a column chart
+sns.set(style="whitegrid")
+fig, ax = plt.subplots(figsize = (16, 8))
+sns.barplot(x= type_counts.index, y = type_counts, palette="viridis")
+
+
+# Adding count annotations on top of each bar
+for p in ax.patches:
+    ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                ha='center', va='center', xytext=(0, 10), textcoords='offset points', fontsize=10)
+
+tournament_dates = {}
+tournament_dates['first_start_day'] = tournaments_df['start_date'].min().date()
+tournament_dates['last_end_date'] = tournaments_df['end_date'].max().date()
+
+# Adding labels and title
+plt.xlabel('Tournament Type')
+plt.ylabel('Count')
+plt.title(f'Number of Tournaments by Type: {tournament_dates["first_start_day"]} to {tournament_dates["last_end_date"]}')
+
+# Rotating x-axis labels for better readability
+plt.xticks(rotation=45, ha='right')
+sns.despine(right=True, top=True)
+
+# Display the plot
+st.pyplot(fig)
+plt.show()
