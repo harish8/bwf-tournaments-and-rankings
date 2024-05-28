@@ -2,6 +2,9 @@
 
 This project aims to gather as much data as possible from the BWF Badminton tournament software to conduct meaningful exploratory data analysis. By creating visual charts, bars, and diagrams, we hope to provide insights into tournaments and player statistics over the years. Ultimately, my goal is to build predictive training models to better understand the popularity of professional badminton worldwide.
 
+## Streamlit app link
+https://harish8-bwf-tournaments-and-rankings.streamlit.app
+
 ## Analysis and Visualization
 
 Through the creation of visual charts, bars, and diagrams, I aim to provide a deeper understanding of tournaments and player statistics over the years. This visual representation will help to reveal patterns and trends in the data, offering insights that may not be immediately apparent from the raw data alone.
